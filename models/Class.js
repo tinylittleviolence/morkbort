@@ -4,8 +4,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             unique: true,
         },
+        roll: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
         description: {
-            type: DataTypes.STRING
+            type: DataTypes.TEXT
         },
         strengthGenModifier: {
             type: DataTypes.INTEGER,

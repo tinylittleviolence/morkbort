@@ -4,15 +4,9 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             unique: true,
         },
-        minRoll: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0,
-        },
-        maxRoll: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0,
+        tag: {
+            type: DataTypes.STRING,
+            unique: true,
         },
 	}, {
 		timestamps: false,
