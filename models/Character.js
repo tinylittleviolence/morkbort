@@ -15,17 +15,17 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 0,
             allowNull: false,
         },
-        maxHp: {
+        max_hp: {
             type: DataTypes.INTEGER,
             defaultValue: 0,
             allowNull: false,
         },
-        currentHp: {
+        current_hp: {
             type: DataTypes.INTEGER,
             defaultValue: 0,
             allowNull: false,
         },
-        powerUses: {
+        power_uses: {
             type: DataTypes.INTEGER,
             defaultValue: 0,
             allowNull: false,

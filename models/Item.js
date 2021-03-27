@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             unique: true,
         },
-        flavourText: {
+        flavour_text: {
             type: DataTypes.STRING,
             
         },
@@ -20,7 +20,18 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 'Normal',
             allowNull: false,
         },
-
+        class_affinity: {
+            type: DataTypes.INTEGER
+        },
+        class_roll: {
+            type: DataTypes.INTEGER
+        },
+        starter_table: {
+            type: DataTypes.INTEGER
+        },
+        starter_roll: {
+            type: DataTypes.INTEGER
+        }
     
 }, {
     timestamps: false,

@@ -1,16 +1,11 @@
 module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('game', {
-        userId: {
-            type: DataTypes.STRING,
-            unique: true,
-
-        },
         channel: {
             type: DataTypes.STRING,
             unique: true,
 
         },
-        miseryDice: {
+        misery_dice: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,

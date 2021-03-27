@@ -23,7 +23,7 @@ client.once('ready', () => {
 
 });
 
-client.on('message', message => {
+client.on('message', async message => {
 
     if(!message.content.startsWith(prefix) || message.author.bot) return; //no prefix or if author is a bot, exit
     

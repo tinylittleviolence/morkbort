@@ -1,15 +1,15 @@
 module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('misery', {
-        psalmNumber: {
+        psalm_number: {
             type: DataTypes.INTEGER,
          
 
         },
-        psalmText: {
+        psalm_text: {
             type: DataTypes.STRING,
             
         },
-        endsWorld: {
+        ends_world: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,

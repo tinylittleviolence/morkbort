@@ -12,60 +12,60 @@ module.exports = (sequelize, DataTypes) => {
         description: {
             type: DataTypes.TEXT
         },
-        strengthGenModifier: {
+        strength_gen_modifier: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
         },
-        presenceGenModifier: {
+        presence_gen_modifier: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
         },
-        agilityGenModifier: {
+        agility_gen_modifier: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
         },
-        toughnessGenModifier: {
+        toughness_gen_modifier: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
         },
-        omenDice: {
+        omen_dice: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
         },
-        hitDice: {
+        hit_dice: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
         },
-        startingSilverd6Quantity: {
+        starting_silver_d6_quantity: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
         },
-        weaponDice: {
+        weapon_dice: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
         },
-        armourDice: {
+        armour_dice: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
         },
-        originDice: {
+        origin_dice: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
         },
-        originDescription: {
+        origin_description: {
             type: DataTypes.STRING,
         },
-        specialisationRolls: {
+        specialisation_rolls: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
