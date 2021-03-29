@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 
         },
         psalm_text: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             
         },
         ends_world: {

@@ -1,12 +1,12 @@
 module.exports = (sequelize, DataTypes) => {
-	return sequelize.define('specialisation', {
-        name: {
-            type: DataTypes.STRING,
-            unique: true,
+	return sequelize.define('armour_types', {
+        tier: {
+            type: DataTypes.INTEGER,
 
         },
-        description: {
-            type: DataTypes.TEXT,
+        armour_type: {
+            type: DataTypes.STRING,
+       
         },
         roll: {
             type: DataTypes.INTEGER,

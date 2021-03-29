@@ -1,15 +1,17 @@
 module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('innate', {
-        name: {
-            type: DataTypes.STRING,
-            unique: true,
-
-        },
-        roll: {
+        class_roll: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
-        }
+        },
+        name: {
+            type: DataTypes.STRING,
+        },
+        description: {
+            type: DataTypes.TEXT,
+            
+        },
 
 }, {
     timestamps: false,

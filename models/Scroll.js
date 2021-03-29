@@ -1,19 +1,22 @@
 module.exports = (sequelize, DataTypes) => {
-	return sequelize.define('specialisation', {
+	return sequelize.define('item', {
         name: {
             type: DataTypes.STRING,
+            defaultValue: 0,
+            allowNull: false,
             unique: true,
-
         },
-        description: {
+        effect: {
             type: DataTypes.TEXT,
+            
+        },
+        scroll_type: {
+            type: DataTypes.STRING, 
         },
         roll: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0,
+            type: DataTypes.INTEGER, 
         }
-
+    
 }, {
     timestamps: false,
 });

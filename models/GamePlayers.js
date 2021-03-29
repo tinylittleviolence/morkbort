@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-	return sequelize.define('game_player', {
+	return sequelize.define('game_players', {
         game_id: DataTypes.STRING,
         player_id: DataTypes.STRING,
         is_dm: {

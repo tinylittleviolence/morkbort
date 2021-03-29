@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
             unique: true,
         },
         flavour_text: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             
         },
         value: {
@@ -31,6 +31,14 @@ module.exports = (sequelize, DataTypes) => {
         },
         starter_roll: {
             type: DataTypes.INTEGER
+        },
+        is_scroll: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
+        custom_flavour_text: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
         }
     
 }, {

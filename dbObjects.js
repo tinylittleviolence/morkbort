@@ -50,7 +50,19 @@ Games.prototype.addPlayer = async function(channelId, player) {
     return GamePlayers.create({ game_id: game.id, player_id: player.id })
 };
 
-Players.prototype.create = async function(userId) {
+Games.prototype.getInfo = async function() {
+    
+    return GamePlayers.findAll({
+        where: { game_id: this.id },
+        attributes: ['player_id'],
+    })
+
+    
+
+
+};
+
+Players.prototype.register = async function(userId) {
     const player = await Players.findOne({
         where: { user_id: userId }
 
