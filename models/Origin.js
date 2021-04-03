@@ -1,9 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('origin', {
-        class: {
-            type: DataTypes.STRING,
-            unique: true,
-        },
+        class_roll: {
+            type: DataTypes.INTEGER,
+
+                },
         roll: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
 
         description: {
             type: DataTypes.TEXT,
-            unique: true,
+
 
         },
 

@@ -8,11 +8,24 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 });
 
 const Games = require('./models/Game')(sequelize, Sequelize.DataTypes);
-const Players = require('./models/Player')(sequelize, Sequelize.DataTypes);;
-const GamePlayers = require('./models/GamePlayers')(sequelize, Sequelize.DataTypes);;
-const PlayerCharacters = require('./models/PlayerCharacters')(sequelize, Sequelize.DataTypes);;
+const Players = require('./models/Player')(sequelize, Sequelize.DataTypes);
+const GamePlayers = require('./models/GamePlayers')(sequelize, Sequelize.DataTypes);
+const PlayerCharacters = require('./models/PlayerCharacters')(sequelize, Sequelize.DataTypes);
 
 GamePlayers.belongsTo(Players, { foreignKey: 'player_id', as: 'player'});
+
+const Characters = require('./models/Character')(sequelize, Sequelize.DataTypes);
+const CharacterAbilities = require('./models/CharacterAbilities')(sequelize, Sequelize.DataTypes);
+const Classes = require('./models/Class')(sequelize, Sequelize.DataTypes);
+const Inventory = require('./models/Inventory')(sequelize, Sequelize.DataTypes);
+const Items = require('./models/Item')(sequelize, Sequelize.DataTypes);
+const Armour = require('./models/Armour')(sequelize, Sequelize.DataTypes);
+const Weapons = require('./models/Weapon')(sequelize, Sequelize.DataTypes);
+
+const Traits = require('./models/Traits')(sequelize, Sequelize.DataTypes);
+const BrokenBodies = require('./models/BrokenBodies')(sequelize, Sequelize.DataTypes);
+const Habits = require('./models/Habits')(sequelize, Sequelize.DataTypes);
+const Origins = require('./models/Origin')(sequelize, Sequelize.DataTypes);
 
 //helpers
 
@@ -90,4 +103,4 @@ Players.prototype.remove = async function(userId) {
     });
 }
 
-module.exports = { Games, GamePlayers, Players };
+module.exports = { Games, GamePlayers, Players, Characters, CharacterAbilities, Items, Classes, Inventory, Armour, Weapons, Traits, BrokenBodies, Habits, Origins};

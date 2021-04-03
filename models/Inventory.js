@@ -1,11 +1,32 @@
 module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('inventory', {
 
-        player_id: DataTypes.STRING,
+        character_id: DataTypes.STRING,
 
-        item_id: DataTypes.STRING,
-
-        item_description: DataTypes.TEXT,
+        name: {
+            type: DataTypes.STRING,
+            defaultValue: 0,
+            allowNull: false,
+            unique: true,
+        },
+        flavour_text: {
+            type: DataTypes.TEXT,
+            
+        },
+        value: {
+            type: DataTypes.STRING,
+            defaultValue: 0,
+            allowNull: false,
+        },
+        size: {
+            type: DataTypes.STRING,
+            defaultValue: 'Normal',
+            allowNull: false,
+        },
+        is_scroll: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
       
               
 }, {

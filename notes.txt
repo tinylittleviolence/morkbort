@@ -1,0 +1,27 @@
+Character gen flow:
+
+1. Generate class --> keep roll number for later use
+2. Generate ability scores
+    2.b generate HP
+    2.c generate omens
+    2.d generate silver
+3. Generate origins
+4. Generate specialisations, add items to inventory if necessary
+5. Generate inventory
+    5.b treat scrolls if rolled
+    5.c generate quantities and custom text
+6. Generate tales, add items to inventory if necessary
+7. Generate bodies, add items to inventory if necessary
+8. Generate habits, add items to inventory if necessary
+9. Generate armour
+10. Generate weapon
+
+remaining commands to code up:
+
+1. Character: ##char [gen|info|damage <damage>|broken|kill|better]
+2. Test: ##test (use game logic and character info, maybe have 'atk' and 'def' in here instead of individual commands?)
+3. Lore: ##lore (random piece of lore, perhaps work in other commands for a like match)
+4. Attack: ##attack [<weapon>] <-- rolls a test based on the weapon's type, auto-rolls damage
+5. Defend: ##defend <-- rolls a defence test with armour modifiers
+6. Misery: ##misery <-- rolls for a misery, if it's a hit, generates the misery and advances the game's miseries
+

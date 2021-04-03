@@ -1,10 +1,18 @@
 module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('character', {
+        user_id: {
+            type: DataTypes.STRING,
+        },
 		name: {
 			type: DataTypes.STRING,
 			defaultValue: 'Nameless',
 			allowNull: false,
 		},
+        class: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+            allowNull: false,
+        },
         omens: {
             type: DataTypes.INTEGER,
             defaultValue: 0,
@@ -44,6 +52,18 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             defaultValue: 0,
             allowNull: false,
+        },
+        traits: { 
+            type: DataTypes.TEXT,
+        },
+        broken_bodies: { 
+            type: DataTypes.TEXT,
+        },
+        habits: { 
+            type: DataTypes.TEXT,
+        },
+        origin: {
+            type: DataTypes.TEXT,
         },
 
 	}, {

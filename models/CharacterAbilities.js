@@ -1,12 +1,10 @@
 module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('character_ability', {
-        user_id: DataTypes.STRING,
-        ability_id: DataTypes.STRING,
-        value: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        }
+        character_id: DataTypes.STRING,
+        strength: DataTypes.INTEGER,
+        presence: DataTypes.INTEGER,
+        agility: DataTypes.INTEGER,
+        toughness: DataTypes.INTEGER,
 
     }, {
 		timestamps: false,

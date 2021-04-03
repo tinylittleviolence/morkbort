@@ -8,6 +8,12 @@ module.exports = (sequelize, DataTypes) => {
         description: {
             type: DataTypes.TEXT,
         },
+        class_roll: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+
         roll: {
             type: DataTypes.INTEGER,
             allowNull: false,

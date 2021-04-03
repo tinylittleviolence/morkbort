@@ -20,12 +20,10 @@ const InnateValues = require('./models/Innate')(sequelize, Sequelize.DataTypes);
 const OriginValues = require('./models/Origin')(sequelize, Sequelize.DataTypes);
 const TaleValues = require('./models/Tales')(sequelize, Sequelize.DataTypes);
 const TraitValues = require('./models/Traits')(sequelize, Sequelize.DataTypes);
-const specialisation = require('./models/Specialisation')(sequelize, Sequelize.DataTypes);
+const SpecialisationValues = require('./models/Specialisation')(sequelize, Sequelize.DataTypes);
 const ClassValues = require('./models/Class')(sequelize, Sequelize.DataTypes);
 const MiseryValues = require('./models/Misery')(sequelize, Sequelize.DataTypes);
 require('./models/ClassInnates')(sequelize, Sequelize.DataTypes);
-require('./models/ClassOrigins')(sequelize, Sequelize.DataTypes);
-require('./models/ClassSpecialisation')(sequelize, Sequelize.DataTypes);
 const ItemValues = require('./models/Item')(sequelize, Sequelize.DataTypes);
 const ScrollValues = require('./models/Scroll')(sequelize, Sequelize.DataTypes);
 const ArmourValues = require('./models/Armour')(sequelize, Sequelize.DataTypes);
@@ -192,7 +190,7 @@ sequelize.sync({ force }).then(async () => {
                             hit_dice: 6,
                             starting_silver_d6_quantity: 4,
                             weapon_dice: 8,
-                            armour_dice: 3,
+                            armour_dice: 4,
                             origin_dice: 6,
                             origin_description: 'Things were going well, until ',
                             specialisation_rolls: 2
@@ -324,8 +322,8 @@ sequelize.sync({ force }).then(async () => {
     ItemValues.upsert({ name: 'Shield', flavour_text: '-1 HP damage or have the shield break to ignore one attack', value: 20, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 3, starter_roll: 9,  is_scroll: 0, custom_flavour_text: 0}),
     ItemValues.upsert({ name: 'Small but vicious dog', flavour_text: 'd6 + 2 HP, d4, only obeys you', value: 0, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 3, starter_roll: 3,  is_scroll: 0, custom_flavour_text: 1}),
     ItemValues.upsert({ name: 'Waterskin', flavour_text: '4 days of water', value: 4, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 0, starter_roll: 0,  is_scroll: 0, custom_flavour_text: 0}),
-    ItemValues.upsert({ name: 'Sacred scroll', flavour_text: '', value: 0, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 2, starter_roll: 5,  is_scroll: 1, custom_flavour_text: 0}),
-    ItemValues.upsert({ name: 'Unclean scroll', flavour_text: '', value: 0, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 3, starter_roll: 2,  is_scroll: 1, custom_flavour_text: 0}),
+    ItemValues.upsert({ name: 'Unclean scroll', flavour_text: '', value: 0, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 2, starter_roll: 5,  is_scroll: 1, custom_flavour_text: 0}),
+    ItemValues.upsert({ name: 'Sacred scroll', flavour_text: '', value: 0, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 3, starter_roll: 2,  is_scroll: 1, custom_flavour_text: 0}),
     //scrolls
     ScrollValues.upsert({name: 'Palms Open the Southern Gate', effect: 'A ball of fire hits d2 cratures dealing d8 damage per creature.', scroll_type: 'Unclean', roll: 1}),
     ScrollValues.upsert({name: 'Tongue of Eris', effect: 'A creature of your choice is confused for 10 minutes.', scroll_type: 'Unclean', roll: 2}),
@@ -348,28 +346,28 @@ sequelize.sync({ force }).then(async () => {
     ScrollValues.upsert({name: 'Roskoe\'s Consuming Glare', effect: 'd4 creatures lose d8 HP each.', scroll_type: 'Sacred', roll: 9}),
     ScrollValues.upsert({name: 'Enochian Syntac', effect: 'One creature blindly obeys a single command.', scroll_type: 'Sacred', roll: 10}),
     //armour
-    ArmourValues.upsert({tier: 0, description: 'No armour', damage_modifier_dice: 0, defence_modifier: 0, agility_test_modifier: 0, roll: 1, value: 0}),
-    ArmourValues.upsert({tier: 0, description: 'Light armour', damage_modifier_dice: 2, defence_modifier: 0, agility_test_modifier: 0, roll: 2, value: 20}),
-    ArmourValues.upsert({tier: 0, description: 'Medium armour', damage_modifier_dice: 4, defence_modifier: 2, agility_test_modifier: 2, roll: 3, value: 100}),
-    ArmourValues.upsert({tier: 0, description: 'Heavy armour', damage_modifier_dice: 6, defence_modifier: 2, agility_test_modifier: 4, roll: 4, value: 200}),
+    ArmourValues.upsert({tier: 0, name: 'No armour', damage_modifier_dice: 0, defence_modifier: 0, agility_test_modifier: 0, roll: 1, value: 0}),
+    ArmourValues.upsert({tier: 0, name: 'Light armour', damage_modifier_dice: 2, defence_modifier: 0, agility_test_modifier: 0, roll: 2, value: 20}),
+    ArmourValues.upsert({tier: 0, name: 'Medium armour', damage_modifier_dice: 4, defence_modifier: 2, agility_test_modifier: 2, roll: 3, value: 100}),
+    ArmourValues.upsert({tier: 0, name: 'Heavy armour', damage_modifier_dice: 6, defence_modifier: 2, agility_test_modifier: 4, roll: 4, value: 200}),
     //weapon
-    WeaponValues.upsert({name: 'Battle axe', roll: 0, damage_dice: 8, value: 35}),
-    WeaponValues.upsert({name: 'Bow', roll: 0, damage_dice: 6, value: 25}),
-    WeaponValues.upsert({name: 'Club', roll: 0, damage_dice: 6, value: 10}),
-    WeaponValues.upsert({name: 'Crossbow', roll: 0, damage_dice: 8, value: 40}),
-    WeaponValues.upsert({name: 'Flail', roll: 0, damage_dice: 8, value: 35}),
-    WeaponValues.upsert({name: 'Femur', roll: 0, damage_dice: 4, value: 0}),
-    WeaponValues.upsert({name: 'Handaxe', roll: 0, damage_dice: 6, value: 15}),
-    WeaponValues.upsert({name: 'Knife', roll: 0, damage_dice: 4, value: 10}),
-    WeaponValues.upsert({name: 'Mace', roll: 0, damage_dice: 6, value: 25}),
-    WeaponValues.upsert({name: 'Shortbow', roll: 0, damage_dice: 4, value: 13}),
-    WeaponValues.upsert({name: 'Shortsword', roll: 0, damage_dice: 4, value: 20}),
-    WeaponValues.upsert({name: 'Sling', roll: 0, damage_dice: 4, value: 8}),
-    WeaponValues.upsert({name: 'Staff', roll: 0, damage_dice: 4, value: 5}),
-    WeaponValues.upsert({name: 'Sword', roll: 0, damage_dice: 6, value: 30}),
-    WeaponValues.upsert({name: 'Warhammer', roll: 0, damage_dice: 6, value: 30}),
-    WeaponValues.upsert({name: 'Whip', roll: 0, damage_dice: 2, value: 5}),
-    WeaponValues.upsert({name: 'Zweihander', roll: 0, damage_dice: 10, value: 60}),
+    WeaponValues.upsert({name: 'Battle axe', roll: 0, damage_dice: 8, value: 35, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Bow', roll: 7, damage_dice: 6, value: 25, is_ranged: 1}),
+    WeaponValues.upsert({name: 'Club', roll: 0, damage_dice: 6, value: 10, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Crossbow', roll: 9, damage_dice: 8, value: 40, is_ranged: 1}),
+    WeaponValues.upsert({name: 'Flail', roll: 8, damage_dice: 8, value: 35, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Femur', roll: 1, damage_dice: 4, value: 0, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Handaxe', roll: 0, damage_dice: 6, value: 15, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Knife', roll: 4, damage_dice: 4, value: 10, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Mace', roll: 0, damage_dice: 6, value: 25, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Shortbow', roll: 0, damage_dice: 4, value: 13, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Shortsword', roll: 3, damage_dice: 4, value: 20, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Sling', roll: 0, damage_dice: 4, value: 8, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Staff', roll: 2, damage_dice: 4, value: 5, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Sword', roll: 6, damage_dice: 6, value: 30, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Warhammer', roll: 5, damage_dice: 6, value: 30, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Whip', roll: 0, damage_dice: 2, value: 5, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Zweihander', roll: 10, damage_dice: 10, value: 60, is_ranged: 0}),
     //origins
     OriginValues.upsert({class_roll: 1, roll: 1, description: 'A burnt-black building in Sarkash. Your home?'}),
     OriginValues.upsert({class_roll: 1, roll: 2, description: 'A derelict rotting ship rolling endlessly across a grey sea.'}),
@@ -418,6 +416,43 @@ sequelize.sync({ force }).then(async () => {
     InnateValues.upsert({class_roll: 5, order: 1, name: 'Insightful', description: 'You may use Powers while wearing medium armour.'}),
     InnateValues.upsert({class_roll: 6, order: 1, name: 'Portable Laboratory', description: 'You carry a portable laboratory and continually search for frequently expended ingredients. Daily you have the ingredients to create two randomly determined decoctions and can brew a total of d4 doses. If unused they lose vitality after 24 hours.'}),
     InnateValues.upsert({class_roll: 6, order: 2, name: 'Decoctions', description: '1: **Red Poison** Toughness DR14 or -d10 HP.\n2: **Ezumiel\'s Vapour** Pass a DR14 test or severe (and arguably fun) hallucinations for d4 hours.\n3: **Southern Frog Stew** Vomit for d4 hours, pass a DR14 test or you can do nothing else.\n4: **Elixir Vitalis** Heals d6 HP and stops infections. Can be habit-forming.\n5: **Spider-owl Soup** See in darkness, climb on walls for 30 minutes.\n6: **Fernor\'s Philtre** Translucent oil, must be dabbed right into the eye. Heals infection and gives +2 Presence tests for d4 hours.\n7: **Hyphos\' Enervating Snuff** Beserk! Two attacks per round but defend with DR14. Lasts one fight, causes sneezing.\n8: **Black Poison** Toughness DR14 or -d6 HP and blinded for one hour.'}),
+    //specialisations
+    SpecialisationValues.upsert({name: 'Crumpled Monster Mask', description: 'Strikes primitive fear into lesser creatures like goblins, gnoums and children. While worn, they check morale every round.', class_roll: 1, roll: 1}),
+    SpecialisationValues.upsert({name: 'The Brown Scimitar of Galgenbeck', description: 'A stinking sword you pulled from a military shit-ditch. d6 damage. DR10 attack and defence while you wield it. 1 in 6 chance a wounded enemy is smitten with potent sepsis, dying in 10 minutes.', class_roll: 1, roll: 2}),
+    SpecialisationValues.upsert({name: 'Wizard Teeth', description: 'Four weird teeth rattle within a blackened pouch. Before battle roll a d6 for every one. For every 6, one of your attacks deals maximum damage.', class_roll: 1, roll: 3}),
+    SpecialisationValues.upsert({name: 'Old Sigurd\'s sling', description: 'Sigurd was the strongest man whose throat you ever gnawed. Woven from his long grey hair, this sling has never failed you. 2d4 damage, requires fist-sized rocks which, perhaps regrettably, are everywhere.', class_roll: 1, roll: 4),
+    SpecialisationValues.upsert({name: 'Ancient Gore-Hound', description: 'Asthmatic, deluded and on its last legs, this wizened creature still has a superb nose and can sniffle up treasure in the most disgusting debris. Attacks with DR10 (bite d6). Devends with DR12, 10HP. Becomes frenzied around goblins and beserkers.', class_roll: 1, roll: 5}),
+    SpecialisationValues.upsert({name: 'The Shoe of Death\'s Horse', description: 'It looks normal but since finding it in an obscure crypt you are convinced this shoe came from the horse of Death himself. In your hands it hits with DR10, d4 damage. 1 in 6 chance the shoe smashes the skull, instantly killing small-to-medium sized creatures. The shoe returns to your hand like a boomerang.', class_roll: 1, roll: 6}),
+    SpecialisationValues.upsert({name: 'Coward\'s Jab', description: 'When attacking by surprise test Agility DR10. On a success you automatically hit once with a light one-handed weapon, dealing normal damage + 3.', class_roll: 2, roll: 1}),
+    SpecialisationValues.upsert({name: 'Filthy Fingersmith', description: 'Your snaky little digits get into pockets and pick locks with a DR8 Agility test. You also begin with lockpicks!', class_roll: 2, roll: 2}),
+    SpecialisationValues.upsert({name: 'Abominable Gob Lobber', description: 'Your phlegm is viscous, lumpy, vile and ballistically accurate at short range. You can spit d2 times during a fight. Roll a DR8 Presence test for accuracy. Targets are blinded, retching and vomiting for d4 rounds. Anyone witnessing this - friend or foe - must make a Toughness test to not also vomit. PCs test DR10 and enemies DR12.', class_roll: 2, roll: 3}),
+    SpecialisationValues.upsert({name: 'Escaping Fate', description: 'Every time you use an omen there is a 50% chance it is not spent.', class_roll: 2, roll: 4}),
+    SpecialisationValues.upsert({name: 'Excretal Stealth', description: 'You have an astounding, almost preternatural ability to hide in muck, debris and filth. When hidden in these conditions a DR16 Presence test is required to notice you.', class_roll: 2, roll: 5}),
+    SpecialisationValues.upsert({name: 'Dodging Death', description: 'You are so unpleasant, irrelevant disgusting and vile even Death would rather avoid you if it can. On death, if there is even the slightest possibility that you survived, there is a 50% chance that you did. If successful, after 10 rounds you pop back up with d4 HP and an unlikely explanation of your escape.', class_roll: 2, roll: 6}),
+    SpecialisationValues.upsert({name: 'Master of Fate', description: 'What use are maps when the subtance of causality itself is open to you? You know the right way with a d8 Presence test.', class_roll: 3, roll: 1}),
+    SpecialisationValues.upsert({name: 'A Book of Boiling Blood', description: 'You may open and read from this book once a day. Your enemy must make a DR12 test to prevent this. If they fail, d2 Beserker-slayers appear from the depths of a forgotten dimension of blood. Roll a d6. On a 1-4 these creatures fight alongside you. On a 5-6 they turn on you, attempting to kill you and destroy the book. After the battle they return to their imprisonment.', class_roll: 3, roll: 2}),
+    SpecialisationValues.upsert({name: 'Speaker of Truths', description: 'Twice per day use your wisdom, knowledge advice and inner calm to bring clarity to a creature of your choice. The DR of the next test they undertake is lowered by 4.', class_roll: 3, roll: 3}),
+    SpecialisationValues.upsert({name: 'Initiate of the Invisible College', description: 'Once per day you can summon d2 scrolls, whose power can only be used once. Roll a d4, on a 1-2 the scrolls are sacred, on a 3-4, unclean. If the scrolls are not used before sunrise they turn to ash.', class_roll: 3, roll: 4}),
+    SpecialisationValues.upsert({name: 'Bard of the Undying', description: 'You learnt your melodies in the Otherworld. The music of your Harp gives +d4 on reaction rolls.', class_roll: 3, roll: 5}),
+    SpecialisationValues.upsert({name: 'Hawk as Weapon', description: 'Your crafty almost-intelligent hawk is loyal only to you. Even without shared language, you understand its cries as it keeps watch, scouts and swoops to attack foes. Attacks/defence DR10 (claws/bite d4), HP 8.', class_roll: 3, roll: 6}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 4, roll: 1}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 4, roll: 2}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 4, roll: 3}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 4, roll: 4}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 4, roll: 5}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 4, roll: 6}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 5, roll: 1}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 5, roll: 2}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 5, roll: 3}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 5, roll: 4}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 5, roll: 5}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 5, roll: 6}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 6, roll: 1}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 6, roll: 2}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 6, roll: 3}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 6, roll: 4}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 6, roll: 5}),
+    SpecialisationValues.upsert({name: '', description: '', class_roll: 6, roll: 6}),
 	];
 	await Promise.all(seedVals);
 	console.log('Database synced');

@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
         custom_flavour_text: {
             type: DataTypes.INTEGER,
             defaultValue: 0,
-        }
+        },
     
 }, {
     timestamps: false,

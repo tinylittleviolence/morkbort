@@ -16,7 +16,6 @@ module.exports = {
             for (i = 0; i < numDice; i++)
             {
                 const rollResult = Math.floor(Math.random() * Math.floor(sides)) + 1;
-                console.log(`rolled a ${rollResult}`);
                 rolls.push(rollResult);
                 total = total + rollResult;
             }

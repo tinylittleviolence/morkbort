@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-	return sequelize.define('item', {
+	return sequelize.define('scroll', {
         name: {
             type: DataTypes.STRING,
             defaultValue: 0,
