@@ -1,12 +1,14 @@
 const { prefix } = require('../config.json');
 const roll = require('../services/diceroller.js');
 const { Users, Characters } = require('../dbObjects');
+const Modifiers = require ('../services/modifiergen');
+const char = require('./char');
 
 module.exports = {
 
     name: 'test',
     description: `Performs a test against the specified ability and DR. Usage: ${prefix}test agi 12`,
-    execute(message, args) {
+    async execute(message, args) {
 
         if (!args) {
             return message.reply(`You need to tell me what you\'re testing. Usage:Usage: ${prefix}test agi 12`);
@@ -16,19 +18,19 @@ module.exports = {
 
         let abilityToTest = '';
 
-        if (args[1].toLowerCase().substring(0, 3) === 'str') {
+        if (args[0].toLowerCase().substring(0, 3) === 'str') {
             abilityMatch = true;
             abilityToTest = 'str'
         }
-        if (args[1].toLowerCase().substring(0, 3) === 'pre') {
+        if (args[0].toLowerCase().substring(0, 3) === 'pre') {
             abilityMatch = true;
             abilityToTest = 'pre'
         }
-        if (args[1].toLowerCase().substring(0, 3) === 'agi') {
+        if (args[0].toLowerCase().substring(0, 3) === 'agi') {
             abilityMatch = true;
             abilityToTest = 'agi'
         }
-        if (args[1].toLowerCase().substring(0, 3) === 'tou') {
+        if (args[0].toLowerCase().substring(0, 3) === 'tou') {
             abilityMatch = true;
             abilityToTest = 'tou'
         }
@@ -41,18 +43,22 @@ module.exports = {
             return message.reply('I failed to work out which ability you were trying to test.');
         }
 
-        if (!args[2]) {
+        if (!args[1]) {
             return message.reply('It doesn\'t look like you\'ve supplied a difficulty rating (DR). It should be a number.');
         }
 
-        let diffRating = parseInt(args[2]);
+        let diffRating = parseInt(args[1]);
         
         if(isNaN(diffRating)) {
             return message.reply('Looks like that difficulty rating isn\'t a number. Try again.');
         }
         
         //find the author's living character
-        let character = await Characters.findOne({ where: {user_id = message.author.id, dead: 0 }});
+        let character = await Characters.findOne({ where: {user_id: message.author.id, dead: 0 }});
+
+        if (!character) {
+            return message.reply('You don\'t seem to have a living character...');
+        }
 
         console.log(character.name);
 
@@ -60,40 +66,76 @@ module.exports = {
 
         console.log(charAbilities);
 
-        //DEV: these are placeholders for now. need to change them to handle args.
-        let ability = abilityToTest;
+
+        //get any modifiers to the diffRating based on equipment and class
+
+        let diffModifier = await Modifiers.GetNewDr(character, abilityToTest, diffRating);
+
+        let newDiffRating = diffRating + diffModifier.modifier;
+
+        let DrAdjustmentReasons = diffModifier.modifications.join("; ");
+
+        //base mod, plus ability score
+
         let modifier = 0;
+
+        if (abilityToTest == 'str') {
+            modifier += charAbilities.strength;
+            console.log(`Added str mod of ${charAbilities.strength}`);
+        }
+        if (abilityToTest == 'pre') {
+            modifier += charAbilities.presence;
+            console.log(`Added pre mod of ${charAbilities.presence}`);
+        }
+        if (abilityToTest == 'agi') {
+            modifier += charAbilities.agility;
+            console.log(`Added agi mod of ${charAbilities.agility}`);
+        }
+        if (abilityToTest == 'tou') {
+            modifier += charAbilities.toughness;
+            console.log(`Added tou mod of ${charAbilities.toughness}`);
+        }
+
+        //get any misc modifiers
+
+        let mod = await Modifiers.GetModifier(character, abilityToTest);
+
+        modifier += mod.modifier;
     
 
         try {
-            console.log(`Testing ${ability} at DR ${diffRating} with a modifier of ${modifier}...`);
+            console.log(`${character.name} tests ${abilityToTest} at Difficulty Rating ${diffRating}...`);
+        
             const result = roll.Roll(1, 20, modifier);
             
-            let pass = (result.total >= diffRating);
+            let pass = (result.total >= newDiffRating);
             let critFail = (result.total == 1);
             let critHit = (result.total == 20);
         
             let resultText = ``;
             
             if (pass && critHit) {
-                resultText = `**Pass! CRITICAL!**`;
+                resultText = `Pass! CRITICAL!`;
             }
             if (pass && !critHit) {
-                resultText = `**Pass!**`;
+                resultText = `Pass!`;
             }
             if (!pass && !critFail) {
-                resultText = `**Fail!**`;
+                resultText = `Fail!`;
             }
             if (!pass && critFail) {
-                resultText = `**Fail!** FUMBLE!`;
+                resultText = `Fail! FUMBLE!`;
             }
             
 
-            message.channel.send(`${message.author} tests ${ability}...
-**Modifier:** ${modifier}
-**DR:** ${diffRating}
-**Result:** (${result.total})
-${resultText}`);
+            message.channel.send(`${message.author} ${character.name} tests ${abilityToTest.toUpperCase()} at Difficulty Rating ${diffRating}...
+**Original DR:** ${diffRating}
+**Ability modifier:** ${modifier}
+**Modified DR:** ${newDiffRating}
+**Modifications:** ${DrAdjustmentReasons}
+**Result:** (${result.rolls.join(', ')})
+**Total:** (${result.total})
+\`${resultText}\``);
 
             message.delete();
         }

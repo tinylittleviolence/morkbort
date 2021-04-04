@@ -353,9 +353,9 @@ sequelize.sync({ force }).then(async () => {
     ScrollValues.upsert({name: 'Enochian Syntac', effect: 'One creature blindly obeys a single command.', scroll_type: 'Sacred', roll: 10}),
     //armour
     ArmourValues.upsert({tier: 0, name: 'No armour', damage_modifier_dice: 0, defence_modifier: 0, agility_test_modifier: 0, roll: 1, value: 0}),
-    ArmourValues.upsert({tier: 0, name: 'Light armour', damage_modifier_dice: 2, defence_modifier: 0, agility_test_modifier: 0, roll: 2, value: 20}),
-    ArmourValues.upsert({tier: 0, name: 'Medium armour', damage_modifier_dice: 4, defence_modifier: 2, agility_test_modifier: 2, roll: 3, value: 100}),
-    ArmourValues.upsert({tier: 0, name: 'Heavy armour', damage_modifier_dice: 6, defence_modifier: 2, agility_test_modifier: 4, roll: 4, value: 200}),
+    ArmourValues.upsert({tier: 1, name: 'Light armour', damage_modifier_dice: 2, defence_modifier: 0, agility_test_modifier: 0, roll: 2, value: 20}),
+    ArmourValues.upsert({tier: 2, name: 'Medium armour', damage_modifier_dice: 4, defence_modifier: 2, agility_test_modifier: 2, roll: 3, value: 100}),
+    ArmourValues.upsert({tier: 3, name: 'Heavy armour', damage_modifier_dice: 6, defence_modifier: 2, agility_test_modifier: 4, roll: 4, value: 200}),
     //weapon
     WeaponValues.upsert({name: 'Battle axe', roll: 0, damage_dice: 8, damage_dice_number: 1, damage_modifier: 0, attack_dr_modifier: 0, defence_dr_modifier: 0, value: 35, is_ranged: 0}),
     WeaponValues.upsert({name: 'Bow', roll: 7, damage_dice: 6, damage_dice_number: 1, damage_modifier: 0, attack_dr_modifier: 0, defence_dr_modifier: 0, value: 25, is_ranged: 1}),
@@ -381,6 +381,7 @@ sequelize.sync({ force }).then(async () => {
     WeaponValues.upsert({name: 'Silk-wrapped Dagger', roll: 0, damage_dice: 4, damage_dice_number: 1, damage_modifier: 0, attack_dr_modifier: 0, defence_dr_modifier: 0, value: 0, is_ranged: 0}),
     WeaponValues.upsert({name: 'Sacred crook', roll: 0, damage_dice: 4, damage_dice_number: 2, damage_modifier: 0, attack_dr_modifier: 0, defence_dr_modifier: 0, value: 0, is_ranged: 0}),
     WeaponValues.upsert({name: 'Sigurd\'s Sling', roll: 0, damage_dice: 4, damage_dice_number: 2, damage_modifier: 0, attack_dr_modifier: 0, defence_dr_modifier: 0, value: 0, is_ranged: 1}),
+    WeaponValues.upsert({name: 'bare hands', roll: 0, damage_dice: 2, damage_dice_number: 1, damage_modifier: 0, attack_dr_modifier: 0, defence_dr_modifier: 0, value: 0, is_ranged: 0}),
     //origins
     OriginValues.upsert({class_roll: 1, roll: 1, description: 'A burnt-black building in Sarkash. Your home?'}),
     OriginValues.upsert({class_roll: 1, roll: 2, description: 'A derelict rotting ship rolling endlessly across a grey sea.'}),
