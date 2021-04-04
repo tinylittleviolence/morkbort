@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             defaultValue: 0,
             allowNull: false,
-            unique: true,
         },
         flavour_text: {
             type: DataTypes.TEXT,
@@ -31,5 +30,6 @@ module.exports = (sequelize, DataTypes) => {
               
 }, {
     timestamps: false,
+    //freezeTableName: true
 });
 };

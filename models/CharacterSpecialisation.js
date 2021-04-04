@@ -1,8 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
-	return sequelize.define('character_weapon', {
+	return sequelize.define('character_specialisation', {
 		character_id: DataTypes.INTEGER,
-		weapon_id: DataTypes.STRING,
-		worn: DataTypes.INTEGER,
+		specialisation_id: DataTypes.STRING,
+
 		
     }, {
 		timestamps: false,

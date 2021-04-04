@@ -106,7 +106,7 @@ module.exports = {
             //there has to be a better way of doing this, but I'm running out of time. Definitely come back and sort this out, because I'm gonna need this a lot.
 
             for (i = 0; i < players.length; i++) {
-                const nickdata = await message.guild.members.fetch('376022875662057473');
+                const nickdata = await message.guild.members.fetch(players[i].player_id);
                 const nick = nickdata.nickname;
                 players[i].player_id = nick;
             }

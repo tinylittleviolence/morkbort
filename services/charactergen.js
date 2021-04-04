@@ -1,10 +1,14 @@
-const { Characters, CharacterAbilities, Classes, Inventory, Items, Armour, Weapons, Traits, BrokenBodies, Habits, Origins} = require ('../dbObjects');
+const { Characters, CharacterAbilities, Classes, Items, 
+    Armour, Weapons, Traits, BrokenBodies, Habits, Origins, 
+    Names, Specialisations, CharacterSpecialisations, CharacterWeapons, CharacterArmour, Scrolls} = require ('../dbObjects');
 
 
 const roll = require('../services/diceroller');
+const InventoryManager = require('../services/inventorymanager');
 
 class Character {
-    constructor(charName, classRoll, omens, silver, maxHp, currentHp, powerUses, infected, broken, dead, traits, brokenBodies, habits, origin) {
+    constructor(user, charName, classRoll, omens, silver, maxHp, currentHp, powerUses, infected, broken, dead, traits, brokenBodies, habits, origin) {
+            this.user = user,
             this.charName = charName,
             this.classRoll = classRoll,
             this.omens = omens,
@@ -65,6 +69,31 @@ class Abilities {
     }
 };
 
+class Item {
+    constructor(
+        name, 
+        flavourText,
+        value,
+        size,
+        classAffinity,
+        classRoll,
+        starterTable,
+        starterRoll,
+        isScroll,
+        customFlavourText) {
+    this.name = name,
+    this.flavourText = flavourText,
+    this.value = value;
+    this.size = size;
+    this.classAffinity = classAffinity;
+    this.classRoll = classRoll;
+    this.starterTable = starterTable,
+    this.starterRoll = starterRoll,
+    this.isScroll = isScroll,
+    this.customFlavourText = customFlavourText
+    }
+};
+
 async function GenerateAbilityScore(mod) {
 
     const range = await roll.Roll(3, 6, mod).total;
@@ -105,8 +134,14 @@ async function GenerateStarterItem(classRoll, phase) {
 
     let starterItem = await Items.findOne({ where: { starter_table: phase, starter_roll: itemRoll }});
 
+    //if we find nothing (a roll of one or two) then return straight away
+
+    if (!starterItem) {
+        return;
+    }
+
     //treatment for fanged deserter's illiterate trait
-    if (classRoll === 1) {
+    if (classRoll === 1 && starterItem.is_scroll === 1) {
         do {
             console.log('deserter rolled a scroll. rerolling...');
             if (phase === 1) {itemRoll = await roll.Roll(1, 6, 0).total;}
@@ -117,8 +152,31 @@ async function GenerateStarterItem(classRoll, phase) {
         while (starterItem.is_scroll === 1);
     }
 
-    return starterItem;
+    //return an instance of the item class for the sake of being able to edit it!
+    generatedStarterItem = new Item(
+        starterItem.name,
+        starterItem.flavour_text,
+        starterItem.value,
+        starterItem.size,
+        starterItem.class_affinity,
+        starterItem.class_roll,
+        starterItem.starter_table,
+        starterItem.starter_roll,
+        starterItem.is_scroll,
+        starterItem.custom_flavour_text
+    );
 
+
+    //if we have a scroll, update the name and description with a randomly rolled scroll of the right type
+    if (generatedStarterItem.isScroll === 1) {
+        let scrollType;
+        if (phase === 2) {scrollType = 'Unclean'};
+        if (phase === 3) {scrollType = 'Sacred'};
+        
+        generatedStarterItem = await GetScrollInfo(scrollType, generatedStarterItem);
+    }
+    
+    return generatedStarterItem;
 }
 
 async function GenerateStarterArmour(armourDice) {
@@ -168,7 +226,7 @@ async function GenerateHabits() {
     habitRoll = await roll.Roll(1, 20, 0).total;
 
     habit = await Habits.findOne({ where: { roll: habitRoll }});
-
+   
     return habit.name;
 }
 
@@ -181,6 +239,52 @@ async function GenerateOrigin(classRoll, originDice) {
     
 }
 
+async function GenerateName() {
+
+    rollOne = await roll.Roll(1, 6, 0).total;
+    rollTwo = await roll.Roll(1, 8, 0).total;
+
+    charName = await Names.findOne({ where: { roll_one: rollOne, roll_two: rollTwo}});
+
+    return charName.name;
+}
+
+async function GenerateSpecialisation(classRoll, specRolls) {
+
+    let specs = [];
+    let lastRollResult = 0
+    let rollResult = 0;
+
+    for (let i = 0; i < specRolls; i++) 
+    {     
+        //make sure we don't get the same spec twice
+        do {
+          rollResult = await roll.Roll(1, 6, 0).total;
+        } while (rollResult == lastRollResult);
+
+        lastRollResult = rollResult;
+
+        let specResult = await Specialisations.findOne({ where: {class_roll: classRoll, roll: rollResult}});
+        specs.push(specResult);
+    
+    }
+    
+    return specs;
+
+}
+
+async function GetScrollInfo(scrollType, scrollItem) {
+
+    scrollRoll = await roll.Roll(1, 10, 0).total;
+
+    scrollData = await Scrolls.findOne({ where: { scroll_type: scrollType, roll: scrollRoll}});
+
+    scrollItem.name = `${scrollData.name} (${scrollType} scroll)`;
+    scrollItem.flavourText = scrollData.effect;
+
+    return scrollItem;
+}
+
 module.exports = {
     async CharGen(user, classRoll) {
 
@@ -189,36 +293,26 @@ module.exports = {
         //get class
         const generatedClass = await Classes.findOne({ where: {roll: classRoll }});
 
-        console.log(`Generated class: ${generatedClass.name}`);
-
-        //const nameRollOne = await roll.Roll(1, 6, 0);
-        //const nameRollTwo = await roll.Roll(1, 8, 0);
-        //const charName = await Names.findOne({ where: { rollOne: nameRollOne, rollTwo = nameRollTwo }} );
-        const charName = 'Dave the test';
+    
+        const charName = await GenerateName();
 
         const omens = await roll.Roll(1, generatedClass.omen_dice, 0).total;
 
-        console.log(`Generated omens: ${omens}`);
-
         const silver = await roll.Roll(generatedClass.starting_silver_d6_quantity, 6, 0).total * 10
-
-        console.log(`Generated silver: ${silver}`);
-
         
         const strength = await GenerateAbilityScore(generatedClass.strength_gen_modifier);
         const presence = await GenerateAbilityScore(generatedClass.presence_gen_modifier);
         const agility = await GenerateAbilityScore(generatedClass.agility_gen_modifier);
         const toughness = await GenerateAbilityScore(generatedClass.toughness_gen_modifier);
 
-        console.log(`STR: ${strength} PRE: ${presence} AGI: ${agility} TOU: ${toughness}`);
-
-        const maxHp = await roll.Roll(1, generatedClass.hit_dice, toughness).total;
+        let maxHp = await roll.Roll(1, generatedClass.hit_dice, toughness).total;
         //min hp is always 1
         if (maxHp < 1) { maxHp = 1 };
 
         const currentHp = maxHp;
 
-        const powerUses = await roll.Roll(1, 4, presence).total;
+        //poweruses can't be any less than zero 
+        let powerUses = await roll.Roll(1, 4, presence).total;
         if (powerUses < 0) { powerUses = 0 };
 
         const infected = 0;
@@ -230,12 +324,21 @@ module.exports = {
         const brokenBodies = await GenerateBrokenBodies();
 
         const habits = await GenerateHabits();
+
+        let habitItemSearchTerm; 
+
+        if (habits === 'Best friend is a skull. Carry it with you, tell it everything, you trust no one more.') 
+        {
+            habitItemSearchTerm = 'Skull';
+        }
+        if (habits === 'You make jewelry from the teeth of the dead. If this can be considered a bad habit.')
+        {
+            habitItemSearchTerm = 'Necklace';
+        }
         
         const origin = await GenerateOrigin(classRoll, generatedClass.origin_dice);
 
-        console.log(origin);
-
-        const generatedCharacter = new Character(charName, classRoll, omens, silver, maxHp, currentHp, powerUses, infected, broken, dead, traits, brokenBodies, habits, origin);
+        const generatedCharacter = new Character(user, charName, classRoll, omens, silver, maxHp, currentHp, powerUses, infected, broken, dead, traits, brokenBodies, habits, origin);
         const generatedAbilities = new Abilities(strength, presence, agility, toughness);
         console.log(generatedCharacter);
         console.log(generatedAbilities);
@@ -249,20 +352,65 @@ module.exports = {
         else console.log('Nothing');
 
         const secondStarterItem = await GenerateStarterItem(classRoll, 2);
-        if (secondStarterItem.is_scroll === 1)  {
-            
+        if (secondStarterItem.isScroll === 1)  {
+
             hasScrolls = 1
-            //go and get proper description from scroll table
+
+
         }
         console.log(secondStarterItem.name);
 
         const thirdStarterItem = await GenerateStarterItem(classRoll, 3);
-        if (thirdStarterItem.is_scroll === 1) {
+        if (thirdStarterItem.isScroll === 1) {
             
             hasScrolls = 1
-            //go and get proper description from scroll table
+          
+
         }
         console.log(thirdStarterItem.name);
+
+        let scrollItemToStore;
+
+        //if it's an esoteric hermit, generate an extra scroll for them
+        if (classRoll == 3)
+            {
+                console.log('getting a scroll for the esoteric');
+                let scrollGenRoll = await roll.Roll(1, 2, 0).total;
+                console.log(scrollGenRoll);
+                let scrollGenType;
+
+                if (scrollGenRoll == 1) {
+                    scrollGenType = 'Unclean';
+                }
+                else {
+                    scrollGenType = 'Sacred';
+                }
+                console.log(scrollGenType);
+               const scrollItem = await Items.findOne({ where: { name: scrollGenType + ' scroll'}});
+    
+            scrollItemToStore = new Item(
+                scrollItem.name,
+                scrollItem.flavour_text,
+                scrollItem.value,
+                scrollItem.size,
+                scrollItem.class_affinity,
+                scrollItem.class_roll,
+                scrollItem.starter_table,
+                scrollItem.starter_roll,
+                scrollItem.is_scroll,
+                scrollItem.custom_flavour_text
+        );
+
+        
+    
+        scrollItemToStore = await GetScrollInfo(scrollGenType, scrollItemToStore);
+
+        console.log(scrollItemToStore);
+
+        }
+
+        
+
 
         let armourDiceToUse = generatedClass.armour_dice;
 
@@ -274,13 +422,72 @@ module.exports = {
         if (hasScrolls === 1) {weaponDiceToUse = 6}
         console.log('weapon dice: ' + weaponDiceToUse)
 
-        starterArmour = await GenerateStarterArmour(armourDiceToUse);
+        const starterArmour = await GenerateStarterArmour(armourDiceToUse);
         console.log('armour: ' + starterArmour.name);
 
-        starterWeapon = await GenerateStarterWeapon(weaponDiceToUse);
+        const starterWeapon = await GenerateStarterWeapon(weaponDiceToUse);
         console.log('weapon: ' + starterWeapon.name);
 
-        /*const savedCharacter = await Characters.create({ 
+        //create an array to hold weapons to store
+        let weaponsToStore = [];
+
+        weaponsToStore.push(starterWeapon);
+
+        //generate specialisations 
+
+        let specs = await GenerateSpecialisation(classRoll, generatedClass.specialisation_rolls);
+        if(specs[0]) {console.log(specs[0].name)};
+        if(specs[1]) {console.log(specs[1].name)};
+
+        //if that spec comes with a weapon, add it to the array for storing
+
+        for (let i = 0; i < specs.length; i++)
+        {
+            if (specs[i].class_roll === 1 && specs[i].roll === 2)
+            {
+                const weap = await Weapons.findOne({ where: { name: 'Smelly Scimitar'}})
+                weaponsToStore.push(weap);
+            }
+            if (specs[i].class_roll === 1 && specs[i].roll === 4)
+            {
+                const weap = await Weapons.findOne({ where: { name: 'Sigurd\'s Sling'}})
+                weaponsToStore.push(weap);
+            }
+            if (specs[i].class_roll === 1 && specs[i].roll === 6)
+            {
+                const weap = await Weapons.findOne({ where: { name: 'Horseshoe'}})
+                weaponsToStore.push(weap);
+            }
+            if (specs[i].class_roll === 4 && specs[i].roll === 1)
+            {
+                const weap = await Weapons.findOne({ where: { name: 'Ancestral Blade'}})
+                weaponsToStore.push(weap);
+            }
+            if (specs[i].class_roll === 4 && specs[i].roll === 4)
+            {
+                const weap = await Weapons.findOne({ where: { name: 'Eurekia'}})
+                weaponsToStore.push(weap);
+            }
+            if (specs[i].class_roll === 4 && specs[i].roll === 5)
+            {
+                const weap = await Weapons.findOne({ where: { name: 'Silk-wrapped Dagger'}})
+                weaponsToStore.push(weap);
+            }
+            if (specs[i].class_roll === 5 && specs[i].roll === 1)
+            {
+                const weap = await Weapons.findOne({ where: { name: 'Sacred crook'}})
+                weaponsToStore.push(weap);
+            }
+
+        }
+
+         
+
+        
+
+
+
+        const savedCharacter = await Characters.create({ 
             user_id: generatedCharacter.user, 
             name: generatedCharacter.charName,
             class: generatedCharacter.classRoll,
@@ -297,27 +504,117 @@ module.exports = {
             origin: generatedCharacter.origin
         });
 
-        console.log(savedCharacter);
+        //console.log(savedCharacter);
 
         const savedCharacterAbilities = await CharacterAbilities.create({
-            character_id = savedCharacter.id,
+            character_id: savedCharacter.character_id,
             strength: generatedAbilities.str,
             presence: generatedAbilities.pre,
             agility: generatedAbilities.agi,
             toughness: generatedAbilities.tou,
         });
 
-        console.log(savedCharacterAbilities);
+        //console.log(savedCharacterAbilities);
 
-        const invItemOne = await InventoryManager.AddToInventoryFromDb(savedCharacter.id, firstStarterItem.name);
-        const invItemTwo = await InventoryManager.AddToInventoryFromDb(savedCharacter.id, secondStarterItem.name);
-        const invItemThree = await InventoryManager.AddToInventoryFromDb(savedCharacter.id, thirdStarterItem.name);
+        //store inventory
+        var invItemOne;
+        
+        if (firstStarterItem) {
+            invItemOne = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, firstStarterItem.name);
+        } 
+        var invItemTwo;
+        var invItemThree;
 
-        if (invItemOne) { console.Log invItemOne; }
-        if (invItemTwo) { console.Log invItemTwo; }
-        if (invItemThree) { console.Log invItemThree; }
+        if (secondStarterItem.isScroll === 1) {
+            invItemTwo = await InventoryManager.AddToInventoryManual(savedCharacter.character_id, secondStarterItem.name, secondStarterItem.flavourText, secondStarterItem.value, secondStarterItem.size, secondStarterItem.isScroll);
+        }
+        else {
+            invItemTwo = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, secondStarterItem.name);
+        }
 
-        */
+        if (thirdStarterItem.isScroll === 1) {
+            invItemThree = await InventoryManager.AddToInventoryManual(savedCharacter.character_id, thirdStarterItem.name, thirdStarterItem.flavourText, thirdStarterItem.value, thirdStarterItem.size, thirdStarterItem.isScroll);
+        }
+        else {
+            invItemThree = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, thirdStarterItem.name);
+        }
+        
+
+        if (invItemOne) { console.log(invItemOne); }
+        if (invItemTwo) { console.log(invItemTwo); }
+        if (invItemThree) { console.log(invItemThree); }
+
+        //habit items, if applicable
+        if (habitItemSearchTerm) {
+            habitItem = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, habitItemSearchTerm);
+            console.log(habitItem);
+        }
+        //esoteric's scroll, if applicable
+        if (scrollItemToStore) {
+            console.log('storing esoteric scroll');
+            storedScroll = await InventoryManager.AddToInventoryManual(savedCharacter.character_id, scrollItemToStore.name, scrollItemToStore.flavourText, scrollItemToStore.value, scrollItemToStore.size, scrollItemToStore.isScroll);
+        }
+        
+        //add lockpicks for the gutterborn if necessary
+        if (classRoll === 2 && specs[0].name === 'Filthy Fingersmith') {
+            console.log('generating lockpicks for scum...');
+            freeLockpicks = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, 'Lockpicks');
+        }
+
+
+        //store specialisations
+
+        let storedSpecs = [];
+
+        for (let i = 0; i < specs.length; i++)
+        {
+            specToPush = await CharacterSpecialisations.create({
+                character_id: savedCharacter.character_id,
+                specialisation_id: specs[i].id
+            })
+            storedSpecs.push(specToPush);
+        }
+
+        //store weapons
+
+        let storedWeapons = [];
+
+        for (let i = 0; i < weaponsToStore.length; i++)
+        {
+            let wear;
+
+            if (weaponsToStore[i].roll != 0) {
+                wear = 1;
+            }
+            else if (weaponsToStore[i].roll = 0) {
+                wear = 0;
+            }
+
+
+            weaponToPush = await CharacterWeapons.create({
+                character_id: savedCharacter.character_id,
+                weapon_id: weaponsToStore[i].id,
+                worn: wear
+            })
+            storedWeapons.push(weaponToPush);
+        }
+
+        //store armour
+
+        storedArmour = await CharacterArmour.create({
+            character_id: savedCharacter.character_id,
+            armour_id: starterArmour.id,
+            worn: 1
+        });
+
+        //find the created character
+
+        createdCharacterInfo = await Characters.findOne({ where: { character_id: savedCharacter.character_id}});
+        //console.log('SAVED CHARACTER DATA');
+        //console.log(createdCharacterInfo);
+
+        return createdCharacterInfo;
+        
     } 
     catch (error) {
         console.log(error);
