@@ -77,8 +77,6 @@ module.exports = {
                 character_id: character.character_id
             } }).armour[0];*/
 
-        console.log(charArmour[0]);
-
         if (!weapon) {
             let charWeapon = await character.getWeapons();
             weapon = charWeapon[0];
@@ -95,7 +93,6 @@ module.exports = {
                 character_id: character.character_id
             } });*/
         
-            console.log(weapon);
 
             console.log(charArmour[0].tier + ' tier armour');
 

@@ -32,6 +32,9 @@ const CharacterSpecialisations = require('./models/CharacterSpecialisation')(seq
 const CharacterWeapons = require('./models/CharacterWeapon')(sequelize, Sequelize.DataTypes);
 const CharacterArmour= require('./models/CharacterArmour')(sequelize, Sequelize.DataTypes);
 const Scrolls = require('./models/Scroll')(sequelize, Sequelize.DataTypes);
+const Miseries = require('./models/Misery')(sequelize, Sequelize.DataTypes);
+const GameMiseries = require('./models/GameMiseries')(sequelize, Sequelize.DataTypes);
+const Lore = require('./models/Lore')(sequelize, Sequelize.DataTypes);
 
 
 Characters.belongsToMany(Specialisations, {through: CharacterSpecialisations, foreignKey: 'character_id', as: 'specialisations'});
@@ -129,4 +132,4 @@ Players.prototype.remove = async function(userId) {
 module.exports = { Games, 
     GamePlayers, Players, Characters, CharacterAbilities, Items, Classes, 
     Inventory, Armour, Weapons, Traits, BrokenBodies, Habits, Origins, Names, Specialisations, CharacterSpecialisations, 
-    CharacterWeapons, CharacterArmour, Scrolls, Innates};
+    CharacterWeapons, CharacterArmour, Scrolls, Innates, Miseries, GameMiseries, Lore};

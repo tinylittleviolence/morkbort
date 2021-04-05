@@ -12,6 +12,19 @@ name: 'defend',
     description: `Defend against an attack. Usage: ${prefix}attack`,
     async execute(message, args) {
 
+        let damageRollSeparate = false;
+        let damageDice = 1;
+
+        if (args[0]) {
+            damageRollSeparate = true;
+            
+            damageDice = parseInt(args[0]);
+
+            if (isNaN(damageDice)) {
+                return message.reply('That\'s not a valid damage die number.');
+            }
+
+        }
 
         let character = await Characters.findOne({ where: { user_id: message.author.id, dead: 0}});
 
@@ -75,8 +88,10 @@ name: 'defend',
 **Total:** (${result.total})
 \`${resultText}\``);
 
+//if damage dice args supplied
+if (damageRollSeparate) {
             if (rollDamage) {
-                damage = await roll.Roll(1, 6, 0).total;
+                damage = await roll.Roll(1, damageDice, 0).total;
                 damageReduction = await roll.Roll(1, damageReductionDice, 0).total;
 
                 if (rollCrit) {
@@ -91,8 +106,10 @@ name: 'defend',
 Their armour prevented ${damageReduction}! 
 They suffered **${netDamage} damage!**`);
             }
+        }
             
-                        message.delete();
+        
+        message.delete();
         }
     catch (error) {
         console.log(error);

@@ -15,6 +15,23 @@ module.exports = {
             return message.channel.send('You must supply at least one argument to the char command. [gen | info | inventory | kill | better]');
         }
 
+        //check to see if the player is in the current game
+
+        const game = await Games.findOne({ where: {channel: message.channel.id }});
+
+        if (!game) {
+            return message.channel.send('There\'s no active game in this channel.')
+        }
+
+        const players = await game.getInfo();
+
+        const isAPlayer = players.find(players => (message.author.id));
+
+        if (!isAPlayer) {
+            return message.channel.send('You\'re not part of the current game.');
+        }
+
+
         if (args[0] === 'gen') {
 
             try {
@@ -70,6 +87,9 @@ module.exports = {
 
         if (args[0] === 'kill') {
         
+        if (message.author.id != '376022875662057473') {
+            return message.reply('You don\'t have the permission to do that on this channel.');
+        }
 
         if (!args[1]) {
             return message.reply('You need to tell me who to kill. There\'s no use in being indiscriminate about it.');
