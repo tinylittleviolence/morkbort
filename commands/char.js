@@ -60,7 +60,7 @@ module.exports = {
 
             message.delete();
 
-            return message.reply(characterEmbed);
+            return message.author.send(characterEmbed);
         }
         catch (error) {
             console.log(error);

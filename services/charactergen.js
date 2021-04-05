@@ -439,10 +439,15 @@ module.exports = {
         if(specs[0]) {console.log(specs[0].name)};
         if(specs[1]) {console.log(specs[1].name)};
 
-        //if that spec comes with a weapon, add it to the array for storing
+        //if that spec comes with a weapon (or if they're toothy!), add it to the array for storing
 
         for (let i = 0; i < specs.length; i++)
         {
+            if (specs[i].class_roll === 1)
+            {
+                const weap = await Weapons.findOne({ where: { name: 'Bite'}})
+                weaponsToStore.push(weap);
+            }
             if (specs[i].class_roll === 1 && specs[i].roll === 2)
             {
                 const weap = await Weapons.findOne({ where: { name: 'Smelly Scimitar'}})
