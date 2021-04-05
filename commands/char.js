@@ -97,14 +97,21 @@ module.exports = {
         try {
             const killTarget = message.mentions.users.first();
 
-            charToKill = await Characters.findOne( {where: { user_id: killTarget.id, dead: 0}});
+            const charToKill = await Characters.findOne( {where: { user_id: killTarget.id, dead: 0}});
             
-            deadChar = await Characters.update({ dead: 1 }, { where: { character_id: charToKill.character_id}, returning: true, plain: true});
+            if (!charToKill) {
+                return message.reply(`I couldn\'t find a character to kill belonging to ${killTarget}.`)
+            }
+
+            const deadChar = await Characters.update({ dead: 1 }, { where: { character_id: charToKill.character_id}, returning: true, plain: true});
 
             console.log(deadChar);
 
-            if (!deadChar) {
-                return message.reply(`I couldn\'t find a character to kill belonging to ${killTarget.tag}.`)
+            const gamePlayer = await GamePlayers.findOne( { where: {game_id: game.id, player_id: killTarget.id}});
+
+            if (gamePlayer.character_is_improvable == 1) {
+                //if they're marked for improvement, undo that. Obviously.
+                gamePlayer.update( {character_is_improvable: 0});
             }
 
             return message.reply(`${charToKill.name} went back to the mud. As do all things, eventually.`);

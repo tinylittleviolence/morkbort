@@ -78,7 +78,7 @@ module.exports = {
                 return message.channel.send(`${playerToAdd.toString()} is already taking part in a game in this channel!`)
             }
 
-            newGamePlayer = await GamePlayers.create({ player_id: playerToAdd.id, game_id: game.id });
+            newGamePlayer = await GamePlayers.create({ player_id: playerToAdd.id, game_id: game.id, is_dm: 0, character_is_improvable: 0});
             message.delete();
             return message.channel.send(`${playerToAdd.toString()} has been added to the game in ${message.channel.toString()}.`)
         }
@@ -97,7 +97,7 @@ module.exports = {
                 return message.channel.send('There\'s no active game in this channel.')
             }
 
-            players = await game.getInfo();
+            let players = await game.getInfo();
 
             if (!players.length) {
                 return message.channel.send('There\s no one playing in this channel yet.');
@@ -112,7 +112,7 @@ module.exports = {
             }
 
             const infoEmbed = new Discord.MessageEmbed()
-            .setColor('FFFF01')
+            .setColor('F8F8FF')
             .setTitle(`MORK BORG in ${message.channel.name}:`)
             .setDescription(`Current players: ${players.map(i => `${i.player_id}`).join(', ')}
             Misery Dice: d${game.misery_dice}
