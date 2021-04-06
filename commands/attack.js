@@ -109,9 +109,10 @@ name: 'attack',
                 }
 
                 return message.channel.send(`${character.name} did ${damage} damage!`);
+                message.delete();
             }
             
-                        message.delete();
+        message.delete();
 
 
 

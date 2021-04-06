@@ -5,6 +5,7 @@ const characterGen = require('../services/charactergen');
 const roll = require('../services/diceroller');
 const CharacterSpecialisation = require('../models/CharacterSpecialisation');
 const Embedder = require('../services/charembedgen');
+const char = require('./char');
 
 async function GetAbilityScoreChange(abilityScore) {
 
@@ -23,10 +24,11 @@ async function GetAbilityScoreChange(abilityScore) {
         }
     }
     if (abilityScore > 1) {
+        console.log('more than 1!');
         if (improvementRoll >= abilityScore && abilityScore < 6) {
             change = 1;
         }
-        if (improvementRoll < abilityScore && abilityScore > -3) {
+        else if (improvementRoll < abilityScore && abilityScore > -3) {
             change = -1;
         }
         else {
@@ -43,7 +45,7 @@ module.exports = {
     name: 'better',
         description: `Improve your character. Available only after your character has been marked for improvement by the Game Master. Usage: ${prefix}better`,
         async execute(message, args) {
-            return message.channel.send ('This command isn\'t ready yet.');
+            //return message.channel.send ('This command isn\'t ready yet.');
 
             //roll 6d10, if >= to max hp then increase by d6.
             //roll d6, get thing
@@ -68,6 +70,10 @@ module.exports = {
 
             if (!charToBetter) {
                 return message.reply(`You don't have a living character in this channel. Did they die? That's a horrible shame.`);
+            }
+
+            if (gamePlayer.character_is_improvable == 0) {
+                return message.reply(`Your character isn\'t marked for improvement. The GM controls when characters improve.`);
             }
 
             let charAbilities = await charToBetter.getAbilities();
@@ -146,15 +152,32 @@ module.exports = {
             }
 
             const betterText = hpText + '\n' + strText + '\n' + preText + '\n' + agiText + '\n' + touText;
+
+            //save the data instance and the new abilities to the database, mark the player's character as 'not improvable'
+
+            charToBetter.max_hp += maxHpToAdd;
+
+            charAbilities.strength = strChange;
+            charAbilities.presence = preChange;
+            charAbilities.agility = agiChange;
+            charAbilities.toughness = touChange;
+
+            gamePlayer.character_is_improvable = 0;
+
+            const updatedAbilities = await charAbilities.save();
+            const updatedChar = await charToBetter.save();
+            const updatedGamePlayer = await gamePlayer.save();
+
         console.log(betterText);
-        /*const betterEmbed = new Discord.MessageEmbed()
+
+        const betterEmbed = new Discord.MessageEmbed()
         .setColor('#ff69b4')
-        .setTitle(`${charToBetter} gets better (or worse)...`)
+        .setTitle(`${charToBetter.name} gets better (or worse)...`)
         .setDescription(betterText);
         
         message.delete();
 
-        return message.channel.send(betterEmbed);*/
+        return message.channel.send(betterEmbed);
                 
 
         }

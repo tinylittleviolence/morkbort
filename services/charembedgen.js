@@ -4,10 +4,10 @@ const characterGen = require('../services/charactergen');
 const roll = require('../services/diceroller');
 const CharacterSpecialisation = require('../models/CharacterSpecialisation');
 
-module.exports = {
-    async GetEmbed(currentChar, message) {
+
+    async function GetEmbed(currentChar, message) {
         charClass = await currentChar.getCharacterclass();
-            console.log(charClass);
+            //console.log(charClass);
 
             classInnates = await charClass.getClassinnates();
 
@@ -21,7 +21,7 @@ module.exports = {
 
             charInventory = await currentChar.getInventory();
 
-            console.log(charInventory);
+            //console.log(charInventory);
 
             let specFields = [];
 
@@ -72,6 +72,43 @@ module.exports = {
             ])
             .setFooter(`This is ${message.author.tag}'s character.`);
             return characterEmbed;
+    }
+
+    async function GetInventoryEmbed(currentChar, message) {
+
+        const charArmour =  await currentChar.getArmour();
+
+        const charWeapons = await currentChar.getWeapons();
+
+        const charInventory = await currentChar.getInventory();
+
+        let inventoryNarratives = [];
+
+           for (let i = 0; i < charInventory.length; i++) {
+                let narrative = charInventory[i].name;
+                if (charInventory[i].flavour_text) 
+                {
+                    narrative = narrative + ' *' + charInventory[i].flavour_text + '*';
+                }
+                inventoryNarratives.push(narrative);
+            }
+
+        const inventoryEmbed = new Discord.MessageEmbed()
+            .setColor('FFFF01')
+            .setTitle(`${currentChar.name}'s belongings`)
+            .setDescription(`Your soul and your silver are your own and equally easy to lose.`)
+            .addFields([    
+                { name: 'Weapons', value: `${charWeapons.map(i => `${i.name} (${i.damage_dice_number}d${i.damage_dice}+${i.damage_modifier} damage)`).join("\n")}`},
+                { name: 'Armour', value: `${charArmour.map(i => `${i.name} (Tier ${i.tier}, -d${i.damage_modifier_dice} damage, DR +${i.agility_test_modifier} to agility tests, DR +${i.defence_modifier} to defence tests)`).join("\n")}`},
+                { name: 'Omens', value: currentChar.omens, inline: true },
+                { name: 'Silver', value: currentChar.silver, inline: true },
+                { name: 'Power uses', value: currentChar.power_uses, inline: true },
+                { name: 'Max HP', value: currentChar.max_hp, inline: true },
+                { name: 'Your possessions', value: inventoryNarratives.join("\n")}
+            ])
+            .setFooter(`This is ${message.author.tag}'s inventory.`);
+            return inventoryEmbed;
 
     }
-}
+
+    module.exports = {GetEmbed, GetInventoryEmbed} 

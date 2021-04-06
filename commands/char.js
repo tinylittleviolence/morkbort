@@ -9,10 +9,10 @@ const Embedder = require('../services/charembedgen');
 module.exports = {
 
     name: 'char',
-    description: `Character commands. Usage: ${prefix}char [gen | info | inventory | kill | better] <args>`,
+    description: `Character commands. Usage: ${prefix}char [gen | info | inv | kill | better] <args>`,
     async execute(message, args) {
         if (!args.length) {
-            return message.channel.send('You must supply at least one argument to the char command. [gen | info | inventory | kill | better]');
+            return message.channel.send('You must supply at least one argument to the char command. [gen | info | inv | kill | better]');
         }
 
         //check to see if the player is in the current game
@@ -85,6 +85,27 @@ module.exports = {
         }
         }
 
+        if (args[0] === 'inv') {
+
+            try {
+                const currentChar = await Characters.findOne({where: {user_id: message.author.id, dead: 0}});
+
+            if (!currentChar) {
+                return message.reply(`You don't have a character. Did they die? What a shame. They're gone.`);
+            }
+
+            let invEmbed = await Embedder.GetInventoryEmbed(currentChar, message);
+
+            message.delete();
+
+            return message.author.send(invEmbed);
+        }
+        catch (error) {
+            console.log(error);
+            message.channel.send('Error in CHAR: Couldn\'t get a character\'s inventory.');
+        }
+        }
+
         if (args[0] === 'kill') {
         
         if (message.author.id != '376022875662057473') {
@@ -114,11 +135,15 @@ module.exports = {
                 gamePlayer.update( {character_is_improvable: 0});
             }
 
+            message.delete();
+            
             return message.reply(`${charToKill.name} went back to the mud. As do all things, eventually.`);
+
+            
         }
         catch (error) {
                 console.log(error);
-                message.channel.send('I shit the bed trying to do that.');
+                message.channel.send('Error in CHAR: couldn\'t kill a character.');
             }
         
         }

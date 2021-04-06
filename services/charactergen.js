@@ -525,7 +525,7 @@ module.exports = {
         var invItemOne;
         
         if (firstStarterItem) {
-            invItemOne = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, firstStarterItem.name);
+            invItemOne = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, firstStarterItem.name, true);
         } 
         var invItemTwo;
         var invItemThree;
@@ -534,25 +534,25 @@ module.exports = {
             invItemTwo = await InventoryManager.AddToInventoryManual(savedCharacter.character_id, secondStarterItem.name, secondStarterItem.flavourText, secondStarterItem.value, secondStarterItem.size, secondStarterItem.isScroll);
         }
         else {
-            invItemTwo = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, secondStarterItem.name);
+            invItemTwo = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, secondStarterItem.name, true);
         }
 
         if (thirdStarterItem.isScroll === 1) {
             invItemThree = await InventoryManager.AddToInventoryManual(savedCharacter.character_id, thirdStarterItem.name, thirdStarterItem.flavourText, thirdStarterItem.value, thirdStarterItem.size, thirdStarterItem.isScroll);
         }
         else {
-            invItemThree = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, thirdStarterItem.name);
+            invItemThree = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, thirdStarterItem.name, true);
         }
         
 
-        if (invItemOne) { console.log(invItemOne); }
-        if (invItemTwo) { console.log(invItemTwo); }
-        if (invItemThree) { console.log(invItemThree); }
+        //if (invItemOne) { console.log(invItemOne); }
+        //if (invItemTwo) { console.log(invItemTwo); }
+        //if (invItemThree) { console.log(invItemThree); }
 
         //habit items, if applicable
         if (habitItemSearchTerm) {
-            habitItem = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, habitItemSearchTerm);
-            console.log(habitItem);
+            habitItem = await InventoryManager.AddToInventoryFromDb(savedCharacter.character_id, habitItemSearchTerm, true);
+            //console.log(habitItem);
         }
         //esoteric's scroll, if applicable
         if (scrollItemToStore) {
@@ -600,7 +600,13 @@ module.exports = {
                 character_id: savedCharacter.character_id,
                 weapon_id: weaponsToStore[i].id,
                 worn: wear
-            })
+            });
+
+            //if it's a ranged weapon, get ammo for it
+            if (weaponsToStore[i].is_ranged) {
+                generatedAmmo = await InventoryManager.GenerateAmmo(savedCharacter.character_id, savedCharacterAbilities.presence, weaponsToStore[i].name);
+            }
+
             storedWeapons.push(weaponToPush);
         }
 
