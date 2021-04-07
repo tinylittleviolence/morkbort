@@ -1,5 +1,5 @@
 const { prefix } = require('../config.json');
-const { Characters, Armour, Weapons, Items } = require('../dbObjects');
+const { Characters, Armour, Weapons, Items, Inventory, CharacterWeapons } = require('../dbObjects');
 const Embedder = require('../services/charembedgen');
 const InventoryManager = require('../services/inventorymanager');
 const sequelize = require('sequelize');
@@ -38,7 +38,10 @@ module.exports = {
 
         for (let i = 1; i < args.length; i++) {
 
+            if (!args[i].startsWith('<@!'))
+            {
             searchArray.push(args[i]);
+            }
 
         }
 
@@ -66,7 +69,7 @@ module.exports = {
 
                 const addedItem = await InventoryManager.AddToInventoryFromDb(currentChar.character_id, itemToAdd.name);
 
-                console.log(addedItem);
+                //console.log(addedItem);
 
                 message.delete();
 
@@ -79,7 +82,41 @@ module.exports = {
         }
 
         if (args[0] == 'giveitem') {
-            return message.channel.send('That command isn\'t ready yet.');
+            //return message.channel.send('This command isn\'t ready yet.');
+            try {
+            const receipient = message.mentions.users.first();
+
+            if (!receipient) {
+                return message.channel.send('You need to tell me who to give this to. Tag them after the command, like this: **##inv giveitem lockpicks @somebody**');
+            }
+
+            const targetChar = await Characters.findOne( {where: { user_id: receipient.id, dead: 0}});
+
+            if (!targetChar) {
+                return message.channel.send(`${receipient} doesn\'t seem to have a living character... did they die? Condolences.`);
+            }
+
+            const itemToGive = await Inventory.findOne({ where: 
+                sequelize.where(sequelize.fn('lower', sequelize.col('name')), searchTerm),
+                character_id: currentChar.character_id, 
+            });
+
+            if (!itemToGive) {
+                return message.reply('I couldn\'t find an item in your inventory with that name');
+            }
+           
+
+            const givenItem = await InventoryManager.GiveItem(currentChar.character_id, targetChar.character_id, itemToGive);
+
+            message.delete();
+
+            return message.channel.send(`${currentChar.name} gave their ${itemToGive.name} to ${targetChar.name}`);
+        }
+        catch (error) {
+            console.log(error);
+            return message.channel.send('Error in INV: couldn\'t give an item to another character.');
+        }
+
         }
 
         if (args[0] == 'dropitem') {
@@ -87,11 +124,69 @@ module.exports = {
         }
 
         if (args[0] == 'addweapon') {
-            return message.channel.send('That command isn\'t ready yet.');
+
+            try {
+            //return message.channel.send('That command isn\'t ready yet.');
+
+            const weaponToAdd = await Weapons.findOne({ where: 
+                sequelize.where(sequelize.fn('lower', sequelize.col('name')), searchTerm)
+            });
+
+            if (!weaponToAdd) {
+                return message.reply('I couldn\'t find an weapon with that name');
+            }
+
+            const addedWeapon = await InventoryManager.AddWeapon(currentChar.character_id, weaponToAdd.name);
+
+            //console.log(addedWeapon);
+
+            message.delete();
+
+            message.channel.send(`${currentChar.name} picked up the ${weaponToAdd.name}.`);
+        }
+        catch (error) {
+            console.log(error);
+            return message.channel.send('Error in INV: couldn\'t pick up a weapon.');
+        }
+
         }
 
         if (args[0] == 'dropweapon') {
-            return message.channel.send('That command isn\'t ready yet.');
+            //return message.channel.send('That command isn\'t ready yet.');
+
+            try {
+
+                const weaponToDrop = await Weapons.findOne({ where: 
+                    sequelize.where(sequelize.fn('lower', sequelize.col('name')), searchTerm)
+                });
+
+                //console.log(weaponToDrop);
+
+                if (!weaponToDrop) {
+                    return message.reply('I couldn\'t find an weapon with that name');
+                }
+
+                const heldWeapon = await CharacterWeapons.findOne({ where: { character_id: currentChar.character_id, weapon_id: weaponToDrop.id}});
+
+                //console.log(heldWeapon);
+
+                if (!heldWeapon) {
+                    return message.reply('You\'re not holding a weapon with that name.');
+                }
+
+                droppedWeapon = await InventoryManager.RemoveWeapon(heldWeapon);
+
+                //console.log(droppedWeapon);
+
+                message.delete();
+
+                message.channel.send(`${currentChar.name} dropped the ${weaponToDrop.name}.`);
+
+            }
+            catch (error) {
+                console.log(error);
+                message.channel.send('Error in INV: couldn\'t drop a held weapon.');
+            }
         }
 
         if (args[0] == 'addarmour') {

@@ -19,9 +19,20 @@ const CharacterSpecialisation = require('../models/CharacterSpecialisation');
 
             charWeapons = await currentChar.getWeapons();
 
+            //console.log(charWeapons);
+
             charInventory = await currentChar.getInventory();
 
             //console.log(charInventory);
+
+            let weapFields = '';
+
+            if (charWeapons) {
+               weapFields = { name: 'Weapons', value: `${charWeapons.map(i => `${i.name} (${i.damage_dice_number}d${i.damage_dice}+${i.damage_modifier} damage)`).join("\n")}`}
+            }
+            else {
+                weapFields = {name: 'Weapons', value: `None`}
+            }
 
             let specFields = [];
 
@@ -62,7 +73,9 @@ const CharacterSpecialisation = require('../models/CharacterSpecialisation');
                 Presence: ${charAbilities.presence}
                 Agility: ${charAbilities.agility}
                 Toughness: ${charAbilities.toughness}`},
-                { name: 'Weapons', value: `${charWeapons.map(i => `${i.name} (${i.damage_dice_number}d${i.damage_dice}+${i.damage_modifier} damage)`).join("\n")}`},
+            ])
+            .addFields(weapFields)
+            .addFields([
                 { name: 'Armour', value: `${charArmour.map(i => `${i.name} (Tier ${i.tier}, -d${i.damage_modifier_dice} damage, DR +${i.agility_test_modifier} to agility tests, DR +${i.defence_modifier} to defence tests)`).join("\n")}`},
                 { name: 'Omens', value: currentChar.omens, inline: true },
                 { name: 'Silver', value: currentChar.silver, inline: true },
@@ -92,13 +105,24 @@ const CharacterSpecialisation = require('../models/CharacterSpecialisation');
                 }
                 inventoryNarratives.push(narrative);
             }
+        
+        let weapFields = [];
+
+            if (charWeapons.length) {
+               weapFields.push({ name: 'Weapons', value: `${charWeapons.map(i => `${i.name} (${i.damage_dice_number}d${i.damage_dice}+${i.damage_modifier} damage)`).join("\n")}`});
+            }
+            else {
+                weapFields.push({name: 'Weapons', value: `None`});
+            }
+
+        console.log(weapFields);
 
         const inventoryEmbed = new Discord.MessageEmbed()
             .setColor('FFFF01')
             .setTitle(`${currentChar.name}'s belongings`)
             .setDescription(`Your soul and your silver are your own and equally easy to lose.`)
+            .addFields(weapFields)
             .addFields([    
-                { name: 'Weapons', value: `${charWeapons.map(i => `${i.name} (${i.damage_dice_number}d${i.damage_dice}+${i.damage_modifier} damage)`).join("\n")}`},
                 { name: 'Armour', value: `${charArmour.map(i => `${i.name} (Tier ${i.tier}, -d${i.damage_modifier_dice} damage, DR +${i.agility_test_modifier} to agility tests, DR +${i.defence_modifier} to defence tests)`).join("\n")}`},
                 { name: 'Omens', value: currentChar.omens, inline: true },
                 { name: 'Silver', value: currentChar.silver, inline: true },

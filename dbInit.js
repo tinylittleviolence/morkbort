@@ -35,7 +35,7 @@ const CharacterArmour = require('./models/CharacterArmour')(sequelize, Sequelize
 const GameMiseries = require('./models/GameMiseries')(sequelize, Sequelize.DataTypes);
 const LoreValues = require('./models/Lore')(sequelize, Sequelize.DataTypes);
 
-const force = process.argv.includes('--force') || process.argv.includes('-f');
+const force = process.argv.includes('--force') || process.argv.includes('-fo');
 
 sequelize.sync({ force }).then(async () => {
 	const seedVals = [
@@ -332,6 +332,9 @@ sequelize.sync({ force }).then(async () => {
     ItemValues.upsert({ name: 'Waterskin', flavour_text: '4 days of water', value: 4, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 0, starter_roll: 0,  is_scroll: 0, custom_flavour_text: 0}),
     ItemValues.upsert({ name: 'Unclean scroll', flavour_text: '', value: 0, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 2, starter_roll: 5,  is_scroll: 1, custom_flavour_text: 0}),
     ItemValues.upsert({ name: 'Sacred scroll', flavour_text: '', value: 0, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 3, starter_roll: 2,  is_scroll: 1, custom_flavour_text: 0}),
+    ItemValues.upsert({ name: 'Rag doll', flavour_text: 'Missing one button eye. A child loved this once.', value: 0, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 0, starter_roll: 0,  is_scroll: 0, custom_flavour_text: 0}),
+    ItemValues.upsert({ name: 'Bone die', flavour_text: 'Perfectly balanced', value: 2, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 0, starter_roll: 0,  is_scroll: 0, custom_flavour_text: 0}),
+    ItemValues.upsert({ name: 'Bedroll', flavour_text: '', value: 5, size: 'Normal', class_affinity: 0, class_roll: 0, starter_table: 0, starter_roll: 0,  is_scroll: 0, custom_flavour_text: 0}),
     //scrolls
     ScrollValues.upsert({name: 'Palms Open the Southern Gate', effect: 'A ball of fire hits d2 creatures dealing d8 damage per creature.', scroll_type: 'Unclean', roll: 1}),
     ScrollValues.upsert({name: 'Tongue of Eris', effect: 'A creature of your choice is confused for 10 minutes.', scroll_type: 'Unclean', roll: 2}),
@@ -385,6 +388,8 @@ sequelize.sync({ force }).then(async () => {
     WeaponValues.upsert({name: 'Sigurd\'s Sling', roll: 0, damage_dice: 4, damage_dice_number: 2, damage_modifier: 0, attack_dr_modifier: 0, defence_dr_modifier: 0, value: 0, is_ranged: 1}),
     WeaponValues.upsert({name: 'bare hands', roll: 0, damage_dice: 2, damage_dice_number: 1, damage_modifier: 0, attack_dr_modifier: 0, defence_dr_modifier: 0, value: 0, is_ranged: 0}),
     WeaponValues.upsert({name: 'Bite', roll: 0, damage_dice: 6, damage_dice_number: 1, damage_modifier: 0, attack_dr_modifier: -2, defence_dr_modifier: 0, value: 0, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Long knife', roll: 0, damage_dice: 3, damage_dice_number: 1, damage_modifier: 1, attack_dr_modifier: 0, defence_dr_modifier: 0, value: 0, is_ranged: 0}),
+    WeaponValues.upsert({name: 'Stone shiv', roll: 0, damage_dice: 4, damage_dice_number: 0, damage_modifier: 1, attack_dr_modifier: 0, defence_dr_modifier: 0, value: 0, is_ranged: 0}),
     //origins
     OriginValues.upsert({class_roll: 1, roll: 1, description: 'A burnt-black building in Sarkash. Your home?'}),
     OriginValues.upsert({class_roll: 1, roll: 2, description: 'A derelict rotting ship rolling endlessly across a grey sea.'}),

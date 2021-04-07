@@ -1,5 +1,4 @@
-const { Characters, CharacterAbilities, Inventory, Items} = require ('../dbObjects');
-const Armour = require('../models/Armour');
+const { Characters, CharacterAbilities, Inventory, Items, Weapons, Armour, CharacterWeapons, CharacterArmour} = require ('../dbObjects');
 const roll = require('../services/diceroller')
 
 
@@ -113,10 +112,10 @@ const roll = require('../services/diceroller')
         return inventoryItem;
     }
 
-    async function GiveItem (giverId, receiverId, item) {
-
-        await RemoveItemFromInventory(giverID);
-        const transferredItem = await AddToInventoryManual(receiverId, item.name, item.flavour_text, item.value, item.size, item.is_scroll);
+    async function GiveItem (giverId, receiverId, itemToTransfer) {
+        console.log(itemToTransfer);
+        const transferredItem = await AddToInventoryManual(receiverId, itemToTransfer.name, itemToTransfer.flavour_text, itemToTransfer.value, itemToTransfer.size, itemToTransfer.is_scroll);
+        await RemoveFromInventory(itemToTransfer);
 
         return transferredItem;
     }
@@ -163,7 +162,7 @@ const roll = require('../services/diceroller')
 
     async function AddWeapon(characterId, weaponName) {
 
-    weapon = await Weapons.findOne({ where: { name: weaponName}});   
+    const weapon = await Weapons.findOne({ where: { name: weaponName}});   
 
         newWeapon = await CharacterWeapons.create({
             character_id: characterId,
@@ -173,6 +172,16 @@ const roll = require('../services/diceroller')
 
         return newWeapon;
     }
+
+    async function RemoveWeapon(characterWeapon) {
+
+        
+        const droppedWeapon = await characterWeapon.destroy();
+    
+        return droppedWeapon;
+
+        
+        }
 
     async function AddArmour(characterId, armourName) {
 
@@ -194,4 +203,16 @@ const roll = require('../services/diceroller')
 
     }
 
-module.exports = { AddToInventoryFromDb, AddToInventoryManual, RemoveFromInventory, AddWeapon, AddArmour, SpendAmmo, BrewDecoction, GenerateAmmo, GiveItem}
+    async function AmendSilverTotal(characterId, amount) {
+
+        const receipient = await Characters.findOne( {where: { character_id: characterId}});
+
+        receipient.silver += amount;
+
+        const newRecipient = await receipient.save();
+
+        return newRecipient;
+
+    }
+
+module.exports = { AddToInventoryFromDb, AddToInventoryManual, RemoveFromInventory, AddWeapon, AddArmour, SpendAmmo, BrewDecoction, GenerateAmmo, GiveItem, RemoveWeapon, AmendSilverTotal}

@@ -17,7 +17,7 @@ name: 'attack',
             return message.reply(`You need to tell me what to attack with. If you want to use your hands, type **${prefix}attack unarmed**.`);
         }
 
-        let weaponText = args[0].toString();
+        let weaponText = args.join(' ');
 
         console.log(weaponText);
 

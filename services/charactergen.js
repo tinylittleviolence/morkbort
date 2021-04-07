@@ -497,6 +497,7 @@ module.exports = {
             name: generatedCharacter.charName,
             class: generatedCharacter.classRoll,
             omens: generatedCharacter.omens,
+            silver: generatedCharacter.silver,
             max_hp: generatedCharacter.maxHp,
             current_hp: generatedCharacter.currentHp, 
             power_uses: generatedCharacter.powerUses,
