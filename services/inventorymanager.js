@@ -1,11 +1,11 @@
-const { Characters, CharacterAbilities, Inventory, Items, Weapons, Armour, CharacterWeapons, CharacterArmour} = require ('../dbObjects');
+const { Characters, CharacterAbilities, Inventory, Items, Weapons, Armour, CharacterWeapons, CharacterArmour, Scrolls} = require ('../dbObjects');
 const roll = require('../services/diceroller')
 
 
 
 
     async function AddToInventoryFromDb(characterId, itemName, isStarterItem) {
-        const itemToAdd = await Items.findOne({ where: {name: itemName}});
+        let itemToAdd = await Items.findOne({ where: {name: itemName}});
         if (!itemToAdd) {
             return;
         }
@@ -84,6 +84,21 @@ const roll = require('../services/diceroller')
 
         }
     }
+
+    //check to see if the item is a scroll, if it is, roll the scroll and update it with proper descriptions
+
+    if (itemToAdd.is_scroll == 1)
+    {
+        let scrollType = '';
+
+        if (itemToAdd.name == 'Unclean scroll') { scrollType = 'Unclean'}
+        else { scrollType = 'Sacred'}
+
+        itemToAdd = await GetScrollInfo(scrollType, itemToAdd);
+        console.log(itemToAdd);
+    }
+
+    
 
         const inventoryItem = await Inventory.create({ 
             character_id: characterId, 
@@ -189,12 +204,44 @@ const roll = require('../services/diceroller')
 
         newArmour = await CharacterArmour.create({
             character_id: characterId,
-            armour_id: starterArmour.id,
+            armour_id: armour.id,
             worn: 0
         });
 
         return newArmour;
     }
+
+    async function RemoveArmour(characterArmour) {
+
+        const droppedArmour = await characterArmour.destroy();
+
+        //check to see if there are any other armours on the character
+
+        const otherArmour = await CharacterArmour.findOne({ where: { character_id: characterArmour.character_id}});
+
+        let addAPlaceholder;
+
+        if (!otherArmour) {
+            //if no other armour is on the character
+            addAPlaceholder = true;
+        }
+        else {
+            //if we found anything, don't add a placeholder
+            addAPlaceholder = false;
+        }
+        
+
+
+        //if not, and if the armour we're getting rid of isn't a 'no armour' placeholder, add one in
+        if (addAPlaceholder) {
+
+            const noArmour = await AddArmour(characterArmour.character_id, 'No armour');
+        }
+
+        return droppedArmour;
+
+
+    }   
 
     async function SpendAmmo() {
 
@@ -215,4 +262,16 @@ const roll = require('../services/diceroller')
 
     }
 
-module.exports = { AddToInventoryFromDb, AddToInventoryManual, RemoveFromInventory, AddWeapon, AddArmour, SpendAmmo, BrewDecoction, GenerateAmmo, GiveItem, RemoveWeapon, AmendSilverTotal}
+    async function GetScrollInfo(scrollType, scrollItem) {
+
+        scrollRoll = await roll.Roll(1, 10, 0).total;
+    
+        scrollData = await Scrolls.findOne({ where: { scroll_type: scrollType, roll: scrollRoll}});
+    
+        scrollItem.name = `${scrollData.name} (${scrollType} scroll)`;
+        scrollItem.flavour_text = scrollData.effect;
+    
+        return scrollItem;
+    }
+
+module.exports = { AddToInventoryFromDb, AddToInventoryManual, RemoveFromInventory, AddWeapon, AddArmour, RemoveArmour, SpendAmmo, BrewDecoction, GenerateAmmo, GiveItem, RemoveWeapon, AmendSilverTotal}

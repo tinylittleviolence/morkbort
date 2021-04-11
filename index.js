@@ -26,6 +26,8 @@ client.once('ready', () => {
 client.on('message', async message => {
 
     if(!message.content.startsWith(prefix) || message.author.bot) return; //no prefix or if author is a bot, exit
+
+    if (message.guild === null) return message.channel.send('I can\'t respond to DMs. Try to run the command in a channel I\'m active in.');
     
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();

@@ -115,8 +115,6 @@ const CharacterSpecialisation = require('../models/CharacterSpecialisation');
                 weapFields.push({name: 'Weapons', value: `None`});
             }
 
-        console.log(weapFields);
-
         const inventoryEmbed = new Discord.MessageEmbed()
             .setColor('FFFF01')
             .setTitle(`${currentChar.name}'s belongings`)
