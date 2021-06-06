@@ -109,8 +109,8 @@ module.exports = {
             const result = roll.Roll(1, 20, modifier);
             
             let pass = (result.total >= newDiffRating);
-            let critFail = (result.total == 1);
-            let critHit = (result.total == 20);
+            let critFail = (result.rolls[0] == 1);
+            let critHit = (result.rolls[0] == 20);
         
             let resultText = ``;
             

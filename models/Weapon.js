@@ -2,6 +2,8 @@ module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('weapon', {
         name: {
             type: DataTypes.STRING,
+            unique: true,
+        
         },
         roll: {
             type: DataTypes.INTEGER,

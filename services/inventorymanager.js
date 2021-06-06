@@ -128,7 +128,7 @@ const roll = require('../services/diceroller')
     }
 
     async function GiveItem (giverId, receiverId, itemToTransfer) {
-        console.log(itemToTransfer);
+        
         const transferredItem = await AddToInventoryManual(receiverId, itemToTransfer.name, itemToTransfer.flavour_text, itemToTransfer.value, itemToTransfer.size, itemToTransfer.is_scroll);
         await RemoveFromInventory(itemToTransfer);
 
@@ -166,12 +166,14 @@ const roll = require('../services/diceroller')
     }
 
     async function RemoveFromInventory(item) {
+
         const removedItem = await Inventory.destroy({ 
             where: {
              id: item.id
         }
         });
 
+        console.log(removedItem);
         return removedItem;
     }
 

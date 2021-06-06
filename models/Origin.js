@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
 
         description: {
             type: DataTypes.TEXT,
+            unique: true,
 
 
         },

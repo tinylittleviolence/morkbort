@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('misery', {
         psalm_number: {
             type: DataTypes.INTEGER,
-         
+            unique: true,
 
         },
         psalm_text: {

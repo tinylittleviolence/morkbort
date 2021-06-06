@@ -14,6 +14,8 @@ module.exports = {
 
         const currentChar = await Characters.findOne({ where: { user_id: message.author.id, dead: 0 } });
 
+        console.log(currentChar.character_id);
+
         if (!currentChar) {
             return message.reply(`You don't have a character. Did they die? What a shame. They're gone.`);
         }
@@ -98,9 +100,11 @@ module.exports = {
                 }
 
                 const itemToGive = await Inventory.findOne({
-                    where:
+                    where: {
+                        [Op.and]: [
                         sequelize.where(sequelize.fn('lower', sequelize.col('name')), searchTerm),
-                    character_id: currentChar.character_id,
+                    { character_id: currentChar.character_id }
+                ]}
                 });
 
                 if (!itemToGive) {
@@ -122,7 +126,30 @@ module.exports = {
         }
 
         if (args[0] == 'dropitem') {
-            return message.channel.send('That command isn\'t ready yet.');
+            
+            console.log(currentChar.character_id);
+
+            const itemToDrop = await Inventory.findOne({
+                where: {
+                    [Op.and]: [
+                    sequelize.where(sequelize.fn('lower', sequelize.col('name')), searchTerm),
+                { character_id: currentChar.character_id }
+            ]}
+            });
+
+            if (!itemToDrop) {
+                return message.reply('I couldn\'t find an item in your inventory with that name');
+            }
+
+
+            console.log(itemToDrop);
+
+            const droppedItem = await InventoryManager.RemoveFromInventory(itemToDrop);
+
+            message.delete();
+
+            return message.channel.send(`${currentChar.name} dropped their ${itemToDrop.name}.`);
+
         }
 
         if (args[0] == 'addweapon') {

@@ -1,4 +1,4 @@
-const { Users, Games, GamePlayers, Characters, CharacterWeapons } = require('../dbObjects');
+const { Users, Games, GamePlayers, Characters, CharacterWeapons, CharacterSpecialisations, Innates } = require('../dbObjects');
 const  Discord = require('discord.js');
 const characterGen = require('../services/charactergen');
 const roll = require('../services/diceroller');
@@ -9,19 +9,23 @@ const CharacterSpecialisation = require('../models/CharacterSpecialisation');
         charClass = await currentChar.getCharacterclass();
             //console.log(charClass);
 
-            classInnates = await charClass.getClassinnates();
+            let classInnates = await Innates.findAll({ where: { class_roll: charClass.roll}});
 
-            charAbilities = await currentChar.getAbilities();
+            console.log(classInnates);
 
-            charSpec = await currentChar.getSpecialisations();
+            let charAbilities = await currentChar.getAbilities();
 
-            charArmour =  await currentChar.getArmour();
+            let charSpec = await currentChar.getSpecialisations();
 
-            charWeapons = await currentChar.getWeapons();
+            console.log(charSpec);
+
+            let charArmour =  await currentChar.getArmour();
+
+            let charWeapons = await currentChar.getWeapons();
 
             //console.log(charWeapons);
 
-            charInventory = await currentChar.getInventory();
+            let charInventory = await currentChar.getInventory();
 
             //console.log(charInventory);
 
@@ -40,11 +44,15 @@ const CharacterSpecialisation = require('../models/CharacterSpecialisation');
                 specFields.push({ name: `${charSpec[i].name}`, value: `${charSpec[i].description}`})
             }
 
+            console.log(specFields);
+
             let innateFields = [];
 
             for (let i = 0; i < classInnates.length; i++) {
                 innateFields.push({ name: `${classInnates[i].name}`, value: `${classInnates[i].description}`})
             }
+
+            console.log(innateFields);
 
             let inventoryNarratives = [];
 
